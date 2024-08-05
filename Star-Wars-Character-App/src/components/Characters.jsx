@@ -1,14 +1,12 @@
-import React, { useState, useContext, useMemo } from "react";
+import React, { useState, useMemo } from "react";
 import CharacterInformation from "./CharacterInformation";
-import { DataContext } from "../DataContext";
 import { colorArray } from "../colors";
 
 const randomNumberInRange = (min, max) => {
     return Math.floor(Math.random() * (max - min + 1)) + min;
 };
 
-const Characters = ({ characters }) => {
-    const { species } = useContext(DataContext);
+const Characters = ({ characters, species, homeWorlds }) => {
     const [selectedCharacter, setSelectedCharacter] = useState(null);
     const [isModalOpen, setIsModalOpen] = useState(false);
 
@@ -43,7 +41,7 @@ const Characters = ({ characters }) => {
 
                 return (
                     <div
-                        key={character.url || character.name} // Assuming `character.url` is unique
+                        key={character.url || character.name}
                         className="character-container movie-container pointer"
                         style={{ backgroundColor: characterColor }}
                         onClick={() => handleCharacterClick(character)}
@@ -56,8 +54,8 @@ const Characters = ({ characters }) => {
             {isModalOpen && selectedCharacter && (
                 <div className="modal-overlay" onClick={closeModal}>
                     <div className="modal-content" onClick={(e) => e.stopPropagation()}>
-                        <CharacterInformation character={selectedCharacter} />
-                        <button onClick={closeModal}>Close</button>
+                        <CharacterInformation character={selectedCharacter} homeWorlds={homeWorlds} />
+                        <button onClick={closeModal}>X</button>
                     </div>
                 </div>
             )}

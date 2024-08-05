@@ -1,9 +1,7 @@
-import React, { useContext, useMemo } from 'react';
-import { DataContext } from '../DataContext';
+import React, { useMemo } from 'react';
 
-const CharacterInformation = ({ character }) => {
-  const { homeWorlds } = useContext(DataContext);
-
+const CharacterInformation = ({ character, homeWorlds }) => {
+  console.log(homeWorlds)
   // Format and parse date
   const formatDate = (date) => {
     const day = String(date.getDate()).padStart(2, '0');
@@ -17,35 +15,35 @@ const CharacterInformation = ({ character }) => {
     return formatDate(date);
   };
 
-  // Memoize home world data lookup
+  // Memoize formatted current date
+  const formattedDate = useMemo(() => formatDate(new Date()), []);
+
   const homeWorldData = useMemo(() => {
-    return homeWorlds.find(hw => hw.url === character?.homeworld);
+    if (character?.homeworld) {
+      return homeWorlds.find(hw => hw.url === character.homeworld) || { name: 'Unknown', terrain: 'Unknown', climate: 'Unknown', residents: [] };
+    }
+    return { name: 'Unknown', terrain: 'Unknown', climate: 'Unknown', residents: [] };
   }, [homeWorlds, character?.homeworld]);
-
-  if (!character) {
-    return <div>Loading character information...</div>;
-  }
-
-  if (!homeWorldData) {
-    return <div>Loading home world information...</div>;
-  }
 
   return (
     <div className="w3-modal-content w3-animate-zoom">
-      <h1>{character.name}</h1>
-      <p>Height: {character.height} metres</p>
-      <p>Mass: {character.mass} kg</p>
-      <p>Creation Date: {parseDateString(character.created)}</p>
-      <p>Birth Year: {character.birth_year}</p>
-      <p>Number of Films: {character.films.length}</p>
-      <div>
-        <h2>Home World</h2>
-        <p>Name: {homeWorldData.name}</p>
-        <p>Terrain: {homeWorldData.terrain}</p>
-        <p>Climate: {homeWorldData.climate}</p>
-        <p>Number of Residents: {homeWorldData.residents.length}</p>
+      <div className="character-info">
+        <h2>{character.name}</h2>
+        <p><strong>Height:</strong> {character.height} metres</p>
+        <p><strong>Mass:</strong> {character.mass} kg</p>
+        <p><strong>Creation Date:</strong> {parseDateString(character.created)}</p>
+        <p><strong>Birth Year:</strong> {character.birth_year}</p>
+        <p><strong>Number of Films:</strong> {character.films.length}</p>
+      </div>
+      <div className="home-world-info">
+        <h3>Home World</h3>
+        <p><strong>Name:</strong> {homeWorldData.name}</p>
+        <p><strong>Terrain:</strong> {homeWorldData.terrain}</p>
+        <p><strong>Climate:</strong> {homeWorldData.climate}</p>
+        <p><strong>Number of Residents:</strong> {homeWorldData.residents.length}</p>
       </div>
     </div>
+
   );
 };
 

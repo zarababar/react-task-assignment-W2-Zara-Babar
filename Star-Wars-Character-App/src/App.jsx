@@ -1,11 +1,17 @@
-import React, { useContext, useState, useRef, useMemo, useCallback } from 'react';
-import { DataContext } from './DataContext';
+import React, { useState, useEffect, useMemo, useCallback, useRef } from 'react';
+import axios from 'axios';
 import Search from './components/Search';
 import Characters from './components/Characters';
 import Header from './components/Header';
 
 const App = () => {
-  const { characters, homeWorlds, species, films, search, setSearch } = useContext(DataContext);
+  const [data, setData] = useState({
+    characters: [],
+    homeWorlds: [],
+    species: [],
+    films: []
+  });
+  const [search, setSearch] = useState('');
   const [filters, setFilters] = useState({
     homeWorld: '',
     species: '',
@@ -13,28 +19,56 @@ const App = () => {
   });
   const timeoutRef = useRef(null);
 
-  // Debounce search input
+  const fetchData = async () => {
+    try {
+      const charResponse = await axios.get('https://swapi.dev/api/people/');
+      const charactersData = charResponse.data.results;
+
+      const homeWorldUrls = charactersData.map(character => character.homeworld);
+      const speciesUrls = charactersData.flatMap(character => character.species);
+      const filmUrls = charactersData.flatMap(character => character.films);
+
+      const [homeWorldResponses, speciesResponses, filmResponses] = await Promise.all([
+        Promise.all(homeWorldUrls.map(url => axios.get(url))),
+        Promise.all(speciesUrls.map(url => axios.get(url))),
+        Promise.all(filmUrls.map(url => axios.get(url)))
+      ]);
+
+      const homeWorldsData = homeWorldResponses.map(response => response.data);
+      const speciesData = speciesResponses.map(response => response.data);
+      const filmsData = filmResponses.map(response => response.data);
+
+      setData({
+        characters: charactersData,
+        homeWorlds: homeWorldsData,
+        species: speciesData,
+        films: filmsData
+      });
+    } catch (error) {
+      console.error("Error fetching data", error);
+    }
+  };
+
+  useEffect(() => {
+    fetchData();
+  }, []);
+
   const handleSearch = useCallback((query) => {
     if (timeoutRef.current) {
       clearTimeout(timeoutRef.current);
     }
     timeoutRef.current = setTimeout(() => {
-      if (query.length >= 2) {
-        setSearch(query);
-      } else if (query.length === 0) {
-        setSearch('');
-      }
+      setSearch(query);
     }, 1000);
   }, [setSearch]);
 
-  // Handle filter changes
   const handleFilterChange = useCallback((type) => (event) => {
     setFilters(prevFilters => ({
       ...prevFilters,
       [type]: event.target.value
     }));
   }, []);
-  //Reset Filters
+
   const resetFilters = () => {
     setFilters({
       homeWorld: '',
@@ -43,19 +77,16 @@ const App = () => {
     });
   };
 
-  // Memoize filtered characters
   const filteredChars = useMemo(() => {
-    return characters.filter(character => {
+    return data.characters.filter(character => {
       const matchesSearch = character.name.toLowerCase().includes(search.toLowerCase());
       const matchesHomeWorld = filters.homeWorld ? character.homeworld === filters.homeWorld : true;
       const matchesSpecies = filters.species ? character.species.includes(filters.species) : true;
       const matchesFilm = filters.film ? character.films.includes(filters.film) : true;
-
       return matchesSearch && matchesHomeWorld && matchesSpecies && matchesFilm;
     });
-  }, [characters, search, filters]);
+  }, [data.characters, search, filters]);
 
-  // Function to get unique values based on a key
   const getUniqueOptions = useCallback((options, key) => {
     const uniqueMap = new Map();
     options.forEach(option => {
@@ -64,11 +95,9 @@ const App = () => {
     return Array.from(uniqueMap.values());
   }, []);
 
-  // Memoize unique options
-  const uniqueHomeWorlds = useMemo(() => getUniqueOptions(homeWorlds, 'url'), [homeWorlds, getUniqueOptions]);
-  const uniqueSpecies = useMemo(() => getUniqueOptions(species, 'url'), [species, getUniqueOptions]);
-  const uniqueFilms = useMemo(() => getUniqueOptions(films, 'url'), [films, getUniqueOptions]);
-
+  const uniqueHomeWorlds = useMemo(() => getUniqueOptions(data.homeWorlds, 'url'), [data.homeWorlds, getUniqueOptions]);
+  const uniqueSpecies = useMemo(() => getUniqueOptions(data.species, 'url'), [data.species, getUniqueOptions]);
+  const uniqueFilms = useMemo(() => getUniqueOptions(data.films, 'url'), [data.films, getUniqueOptions]);
 
   return (
     <>
@@ -78,30 +107,35 @@ const App = () => {
         <label htmlFor="homeworld-filter">Homeworld:</label>
         <select id="homeworld-filter" value={filters.homeWorld} onChange={handleFilterChange('homeWorld')}>
           <option value="">All</option>
+
           {uniqueHomeWorlds.map(homeworld => (
             <option key={homeworld.url} value={homeworld.url}>{homeworld.name}</option>
           ))}
+
         </select>
 
         <label htmlFor="species-filter">Species:</label>
         <select id="species-filter" value={filters.species} onChange={handleFilterChange('species')}>
           <option value="">All</option>
+
           {uniqueSpecies.map(specie => (
             <option key={specie.url} value={specie.url}>{specie.name}</option>
           ))}
+
         </select>
 
         <label htmlFor="film-filter">Film:</label>
         <select id="film-filter" value={filters.film} onChange={handleFilterChange('film')}>
           <option value="">All</option>
+
           {uniqueFilms.map(film => (
             <option key={film.url} value={film.url}>{film.title}</option>
           ))}
+
         </select>
         <button className="reset-button" onClick={resetFilters}>Reset Filters</button>
       </div>
-
-      <Characters characters={filteredChars} />
+      <Characters characters={filteredChars} species={data.species} homeWorlds={data.homeWorlds} />
     </>
   );
 }
