@@ -1,11 +1,11 @@
-@import url('https://fonts.googleapis.com/css2?family=Caprasimo&family=Roboto+Slab:wght@400;700&display=swap');
+@import url("https://fonts.googleapis.com/css2?family=Caprasimo&family=Roboto+Slab:wght@400;700&display=swap");
 
 * {
   box-sizing: border-box;
 }
 
 html {
-  font-family: 'Roboto Slab', sans-serif;
+  font-family: "Roboto Slab", sans-serif;
   line-height: 1.5;
 
   color: #ebe7ef;
@@ -23,7 +23,7 @@ body {
       rgba(71, 71, 69, 0.98),
       rgba(45, 44, 44, 0.87)
     ),
-    url('baby-yoda.png');
+    url("baby-yoda.png");
   background-repeat: repeat;
   background-size: 100% 100%, 30% 30%, 100% 100%;
   min-height: 110rem;
@@ -32,7 +32,6 @@ body {
   text-align: center;
   margin: 1rem auto;
 }
-
 
 #header img {
   width: 5rem;
@@ -46,12 +45,10 @@ body {
   margin-right: 1rem;
   font-weight: bold;
   text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.6);
-   
-  background: linear-gradient(90deg, #ff5733, #33ff57); /* Gradient colors */
-  -webkit-background-clip: text; /* Clip the background to text */
-  -webkit-text-fill-color: transparent; /* Make text color transparent to show the gradient */
-  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.6); /* Shadow for better readability */
-
+  background: linear-gradient(90deg, #ff5733, #33ff57);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.6);
 }
 .page-container {
   display: grid;
@@ -60,7 +57,7 @@ body {
   padding: 20px;
   justify-content: center;
 }
-.card-color[style*="background-color: default-color"]{
+.card-color[style*="background-color: default-color"] {
   background-color: rgba(33, 224, 224, 0.9);
 }
 .movie-container {
@@ -93,7 +90,6 @@ body {
 
 .character-container {
   cursor: pointer;
-  /* Add other styles as needed */
 }
 
 .modal-overlay {
@@ -102,23 +98,22 @@ body {
   left: 0;
   right: 0;
   bottom: 0;
-  background: rgba(0, 0, 0, 0.7); /* Semi-transparent black background */
+  background: rgba(0, 0, 0, 0.7);
   display: flex;
   align-items: center;
   justify-content: center;
-  z-index: 1000; /* Ensure the modal is above other content */
-} 
+  z-index: 1000;
+}
 
 .modal-content {
   background: rgb(160, 198, 160);
-  /* padding: 20px; */
   border-radius: 8px;
   width: 100%;
   max-width: 950px;
-  max-height: 80vh; /* Adjust based on your design */
-  overflow-y: auto; /* Enable vertical scrolling */
+  max-height: 80vh;
+  overflow-y: auto;
   position: relative;
-  color:#23221f;
+  color: #23221f;
 }
 
 button {
@@ -128,48 +123,40 @@ button {
   padding: 5px 10px;
   cursor: pointer;
 }
-/* Styles for the filter container */
+
 .filter-container {
   display: flex;
-  flex-direction: column;
+  flex-wrap: wrap;
+  gap: 1rem;
   padding: 1rem;
-  background: linear-gradient(to right, #4a4848, #766b6b); 
-  border-radius: 8px; 
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); 
-  max-width: 500px; 
-  margin: 0 auto; 
+  background: linear-gradient(to right, #4a4848, #766b6b);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  max-width: 100%;
+  margin: 0 auto;
+  align-items: center;
+  justify-content: flex-start;
 }
 
-/* Styles for each filter label */
-.filter-container label {
-  font-weight: bold;
-  margin-bottom: 0.25rem;
+.filter-container > * {
+  flex: 1 1 auto;
 }
 
-/* Styles for each select element */
-.filter-container select {
-  padding: 0.5rem;
-  border: 1px solid #ccc;
-  border-radius: 4px;
-  background-color: #fff; 
-  font-size: 1rem;
-}
-
-
-.filter-container select:hover {
-  border-color: #888; 
+.reset-button {
+  background-color: red;
+  color: white;
+  border: none;
+  padding: 5px 10px;
   cursor: pointer;
+  border-radius: 3px;
+  margin-left: 500px;
+  margin-top: 37px;
+  font-size: 0.875rem;
 }
 
-
-.filter-container select:focus {
-  outline: none;
-  border-color: #007bff;
-  box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.25); 
+.reset-button:hover {
+  background-color: darkred;
 }
-
 /* //------------------------------------------------------ */
-
 
 @keyframes slide-in-from-left {
   0% {

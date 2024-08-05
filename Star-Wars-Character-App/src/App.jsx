@@ -34,6 +34,14 @@ const App = () => {
       [type]: event.target.value
     }));
   }, []);
+  //Reset Filters
+  const resetFilters = () => {
+    setFilters({
+      homeWorld: '',
+      species: '',
+      film: ''
+    });
+  };
 
   // Memoize filtered characters
   const filteredChars = useMemo(() => {
@@ -61,11 +69,12 @@ const App = () => {
   const uniqueSpecies = useMemo(() => getUniqueOptions(species, 'url'), [species, getUniqueOptions]);
   const uniqueFilms = useMemo(() => getUniqueOptions(films, 'url'), [films, getUniqueOptions]);
 
+
   return (
     <>
       <Header />
       <div className="filter-container">
-      <Search onSearch={handleSearch} />
+        <Search onSearch={handleSearch} />
         <label htmlFor="homeworld-filter">Homeworld:</label>
         <select id="homeworld-filter" value={filters.homeWorld} onChange={handleFilterChange('homeWorld')}>
           <option value="">All</option>
@@ -89,7 +98,9 @@ const App = () => {
             <option key={film.url} value={film.url}>{film.title}</option>
           ))}
         </select>
+        <button className="reset-button" onClick={resetFilters}>Reset Filters</button>
       </div>
+
       <Characters characters={filteredChars} />
     </>
   );
