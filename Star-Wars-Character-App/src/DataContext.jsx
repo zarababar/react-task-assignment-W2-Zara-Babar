@@ -17,21 +17,22 @@ export const DataProvider = ({ children }) => {
       setCharacters(charactersData);
 
       const homeWorldUrls = charactersData.map(character => character.homeworld);
-      const homeWorldResponses = await Promise.all(homeWorldUrls.map(url => axios.get(url)));
-      const homeWorldsData = homeWorldResponses.map(response => response.data);
-      setHomeWorlds(homeWorldsData);
-
-      //flattens the array by one level 
       const speciesUrls = charactersData.flatMap(character => character.species);
-      const speciesResponses = await Promise.all(speciesUrls.map(url => axios.get(url)));
-      const speciesData = speciesResponses.map(response => response.data);
-      setSpecies(speciesData);
-
       const filmUrls = charactersData.flatMap(character => character.films);
-      const filmResponses = await Promise.all(filmUrls.map(url => axios.get(url)));
-      const filmsData = filmResponses.map(response => response.data);
-      setFilms(filmsData);
 
+      const [homeWorldResponses, speciesResponses, filmResponses] = await Promise.all([
+        Promise.all(homeWorldUrls.map(url => axios.get(url))),
+        Promise.all(speciesUrls.map(url => axios.get(url))),
+        Promise.all(filmUrls.map(url => axios.get(url)))
+      ]);
+
+      const homeWorldsData = homeWorldResponses.map(response => response.data);
+      const speciesData = speciesResponses.map(response => response.data);
+      const filmsData = filmResponses.map(response => response.data);
+
+      setHomeWorlds(homeWorldsData);
+      setSpecies(speciesData);
+      setFilms(filmsData);
     }
     catch (error) {
       console.error("Error fetching data", error);
