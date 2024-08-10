@@ -1,8 +1,12 @@
-import appLogo from '../assets/app-logo-background.png'
-const Header = () => {
+import { Link } from 'react-router-dom';
+
+const Header = ({ username }) => {
     return (
         <div id='header'>
-            <h1>Star Wars App</h1>
+            <h1>Welcome {username} to the Star Wars App</h1>
+            <nav>
+                <Link to="/logout">Logout</Link> {/* Link to the Logout route */}
+            </nav>
         </div>
     );
 };
