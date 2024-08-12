@@ -2,12 +2,15 @@ import React from 'react';
 import './Pagination.css';
 
 const Pagination = ({ currentPage, totalPages, onPageChange }) => {
-  function handlePageChange(currentPage) {
-    onPageChange(currentPage);
-    window.scrollTo({
-      top: 0,
-      behaivior: 'smooth'
-    });
+  const handlePageChange = (newPage) => {
+    // Check if the new page number is within valid bounds
+    if (newPage >= 1 && newPage <= totalPages) {
+      onPageChange(newPage); // Call the function to update the page
+      window.scrollTo({
+        top: 0,
+        behavior: 'smooth' // Corrected typo
+      });
+    }
   }
   return (
     <div className="pagination">

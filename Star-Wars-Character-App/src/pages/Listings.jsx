@@ -12,7 +12,7 @@ import Loader from '../components/loader';
 import { getUniqueOptions } from '../utils/utils';
 
 const Listings = () => {
-  const apiURL = import.meta.env.VITE_APP_SWAPI_API_URL;
+  const apiBaseURL = import.meta.env.VITE_APP_SWAPI_API_URL;
   const username = getUsername();
 
   const [data, setData] = useState({
@@ -31,48 +31,47 @@ const Listings = () => {
     film: ''
   });
 
-  const { fetchedData, isLoading, error } = useFetch(apiURL, currentPage);
+  const apiURL = `${apiBaseURL}${currentPage}`;
+  const { fetchedData, isLoading, error } = useFetch(apiURL);
   const timeoutRef = useRef(null);
 
   useEffect(() => {
     const fetchDataAndUpdateState = async () => {
-      const pageData = fetchedData;
-      if (pageData) {
-        const newCharacters = pageData.results;
-        const totalItems = pageData.count;
+      if (!fetchedData) return;
+      try {
+        const newCharacters = fetchedData.results;
+        const totalItems = fetchedData.count;
         const totalPageCount = Math.ceil(totalItems / 10);
 
         const homeWorldUrls = newCharacters.map(character => character.homeworld);
         const speciesUrls = newCharacters.flatMap(character => character.species);
         const filmUrls = newCharacters.flatMap(character => character.films);
 
-        try {
-          const [homeWorldResponses, speciesResponses, filmResponses] = await Promise.all([
-            Promise.all(homeWorldUrls.map(url => axios.get(url))),
-            Promise.all(speciesUrls.map(url => axios.get(url))),
-            Promise.all(filmUrls.map(url => axios.get(url)))
-          ]);
+        const [homeWorldResponses, speciesResponses, filmResponses] = await Promise.all([
+          Promise.all(homeWorldUrls.map(url => axios.get(url))),
+          Promise.all(speciesUrls.map(url => axios.get(url))),
+          Promise.all(filmUrls.map(url => axios.get(url)))
+        ]);
 
-          const homeWorldsData = homeWorldResponses.map(response => response.data);
-          const speciesData = speciesResponses.map(response => response.data);
-          const filmsData = filmResponses.map(response => response.data);
+        const homeWorldsData = homeWorldResponses.map(response => response.data);
+        const speciesData = speciesResponses.map(response => response.data);
+        const filmsData = filmResponses.map(response => response.data);
 
-          setData(prevData => ({
-            characters: newCharacters,
-            homeWorlds: prevData.homeWorlds.concat(homeWorldsData),
-            species: prevData.species.concat(speciesData),
-            films: prevData.films.concat(filmsData)
-          }));
-          setTotalPages(totalPageCount);
-        } catch (error) {
-          console.error("Error fetching additional data", error);
-        }
+        setData(prevData => ({
+          characters: newCharacters,
+          homeWorlds: homeWorldsData,
+          species: speciesData,
+          films: filmsData
+        }));
+        setTotalPages(totalPageCount);
+      } catch (error) {
+        console.error("Error fetching additional data", error);
       }
     };
 
     fetchDataAndUpdateState();
   }, [currentPage, fetchedData]);
-
+  
   if (!isAuthenticated()) {
     return <Navigate to="/" />; // Redirect to Login if not authenticated
   }
@@ -117,30 +116,31 @@ const Listings = () => {
     });
   }, [data.characters, search, filters]);
 
-  const uniqueHomeWorlds = useMemo(() => getUniqueOptions(data.homeWorlds, 'url'), [data.homeWorlds, getUniqueOptions]);
-  const uniqueSpecies = useMemo(() => getUniqueOptions(data.species, 'url'), [data.species, getUniqueOptions]);
-  const uniqueFilms = useMemo(() => getUniqueOptions(data.films, 'url'), [data.films, getUniqueOptions]);
+  const uniqueHomeWorlds = useMemo(() => getUniqueOptions(data.homeWorlds, 'url'), [data.homeWorlds]);
+  const uniqueSpecies = useMemo(() => getUniqueOptions(data.species, 'url'), [data.species]);
+  const uniqueFilms = useMemo(() => getUniqueOptions(data.films, 'url'), [data.films]);
 
   return (
     <>
       <Header uname={username} />
-      {isLoading ? (
+      <div className="filter-container">
+        <Search onSearch={handleSearch} />
+        <Filters
+          filters={filters}
+          handleFilterChange={handleFilterChange}
+          resetFilters={resetFilters}
+          uniqueHomeWorlds={uniqueHomeWorlds}
+          uniqueSpecies={uniqueSpecies}
+          uniqueFilms={uniqueFilms}
+        />
+      </div>
+      
+      {isLoading || isUpdating ? (
         <Loader />
       ) : error ? (
         <p>Error fetching data</p>
       ) : (
         <>
-          <div className="filter-container">
-            <Search onSearch={handleSearch} />
-            <Filters
-              filters={filters}
-              handleFilterChange={handleFilterChange}
-              resetFilters={resetFilters}
-              uniqueHomeWorlds={uniqueHomeWorlds}
-              uniqueSpecies={uniqueSpecies}
-              uniqueFilms={uniqueFilms}
-            />
-          </div>
           <Characters
             characters={filteredChars}
             species={data.species}

@@ -11,16 +11,12 @@ const Characters = ({ characters, species, homeWorlds }) => {
 
     const handleCharacterClick = (character) => {
         setSelectedCharacter(character);
-        if (modalRef.current) {
-            modalRef.current.style.display = 'flex';
-        }
+        document.body.style.overflow = 'hidden'; 
     };
 
     const closeModal = () => {
-        if (modalRef.current) {
-            modalRef.current.style.display = 'none';
-        }
         setSelectedCharacter(null);
+        document.body.style.overflow = ''; 
     };
 
     const getCharacterColor = useMemo(() => (character) => {
@@ -30,7 +26,6 @@ const Characters = ({ characters, species, homeWorlds }) => {
             return colorArray[randomNumberInRange(0, colorArray.length - 1)];
         }
 
-        // Extract Id
         const speciesId = characterSpeciesUrl.split('/').slice(-2, -1)[0];
         const speciesMatch = species.find(species => species.url.includes(speciesId));
 
@@ -54,12 +49,14 @@ const Characters = ({ characters, species, homeWorlds }) => {
                     </div>
                 );
             })}
-            <div className="modal-overlay" ref={modalRef} style={{ display: 'none' }} onClick={closeModal}>
-                <div className="modal-content" onClick={(e) => e.stopPropagation()}>
-                    {selectedCharacter && <CharacterInformation character={selectedCharacter} homeWorlds={homeWorlds} />}
-                    <button onClick={closeModal}>X</button>
+            {selectedCharacter && (
+                <div className="modal-overlay" ref={modalRef} onClick={closeModal}>
+                    <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+                        <CharacterInformation character={selectedCharacter} homeWorlds={homeWorlds} />
+                        <button onClick={closeModal}>X</button>
+                    </div>
                 </div>
-            </div>
+            )}
         </div>
     );
 };
