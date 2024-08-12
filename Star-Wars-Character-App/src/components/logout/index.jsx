@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Loader from '../loader';
+import './Logout.css';
 
 const Logout = () => {
   const [isLoading, setIsLoading] = useState(true);
@@ -21,7 +22,6 @@ const Logout = () => {
     return <Loader />;
   }
 
-  // Optionally, you can return null or an empty fragment if the component is already redirected
   return null;
 };
 

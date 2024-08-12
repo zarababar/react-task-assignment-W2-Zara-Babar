@@ -167,10 +167,11 @@ export default function Login() {
       const { data } = await axios.post(authUrl, {
         username: enteredUsername,
         password: enteredPassword,
-        expiresInMins: import.meta.env.VITE_EXPIRES_IN
       });
 
       localStorage.setItem("authToken", data.token); // Store the token as a string
+      localStorage.setItem("username", enteredUsername); // Store the token as a string
+      
       navigate(`/listings`, { state: { username: enteredUsername } }); // Navigate to Listings
 
       console.log('Login Successful', data);

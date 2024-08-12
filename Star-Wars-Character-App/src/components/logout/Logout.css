@@ -1,0 +1,24 @@
+#header {
+    position: relative;
+    color: white;
+    justify-content: space-between;
+    align-items: center;
+  }
+  
+  .logout-button {
+    background-color: #747372;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    font-size: 16px;
+    cursor: pointer;
+    border-radius: 4px;
+    position: absolute;
+    top: 6px;
+    right: 20px;
+  }
+  
+  .logout-button:hover {
+    background-color: #3b3939;
+  }
+  

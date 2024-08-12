@@ -1,17 +1,22 @@
 import React, { useState, useEffect, useMemo, useCallback, useRef } from 'react';
 import { useLocation } from 'react-router-dom';
+import useFetch from '../hooks/useFetch';
 import axios from 'axios';
-import Search from './components/Search';
-import Characters from './components/Characters';
-import Header from './components/Header';
+import Search from '../components/search';
+import Characters from '../components/Characters';
+import Header from '../components/header';
+import Pagination from '../components/pagination';
 
 const Listings = () => {
-  const [data, setData] = useState({
-    characters: [],
-    homeWorlds: [],
-    species: [],
-    films: []
-  });
+  const apiURL=import.meta.env.VITE_APP_SWAPI_API_URL;
+const { data, currentPage, totalPages, setCurrentPage } =useFetch(apiURL);
+  // const [data, setData] = useState({
+  //   characters: [],
+  //   homeWorlds: [],
+  //   species: [],
+  //   films: []
+  // });
+  
   const [search, setSearch] = useState('');
   const [filters, setFilters] = useState({
     homeWorld: '',
@@ -20,48 +25,21 @@ const Listings = () => {
   });
   const timeoutRef = useRef(null);
   const location = useLocation();
-  const username = location.state?.username || 'Guest';
-  console.log(location.state?.username)
+  // const username = location.state?.username || 'Guest';
+  const username = localStorage.getItem('username');
+  console.log(localStorage.getItem('username'))
 
   const token = localStorage.getItem('authToken');
+
+
   if (!token) {
     return <Navigate to="/" />; // Redirect to Login if not authenticated
   }
-
-
-  const fetchData = async () => {
-    try {
-      const charResponse = await axios.get('https://swapi.dev/api/people/');
-      const charactersData = charResponse.data.results;
-
-      const homeWorldUrls = charactersData && charactersData.map(character => character.homeworld);
-      const speciesUrls = charactersData.flatMap(character => character.species);
-      const filmUrls = charactersData.flatMap(character => character.films);
-
-      const [homeWorldResponses, speciesResponses, filmResponses] = await Promise.all([
-        Promise.all(homeWorldUrls.map(url => axios.get(url))),
-        Promise.all(speciesUrls.map(url => axios.get(url))),
-        Promise.all(filmUrls.map(url => axios.get(url)))
-      ]);
-
-      const homeWorldsData = homeWorldResponses.map(response => response.data);
-      const speciesData = speciesResponses.map(response => response.data);
-      const filmsData = filmResponses.map(response => response.data);
-
-      setData({
-        characters: charactersData,
-        homeWorlds: homeWorldsData,
-        species: speciesData,
-        films: filmsData
-      });
-    } catch (error) {
-      console.error("Error fetching data", error);
+  const handlePageChange = (newPage) => {
+    if (newPage >= 1 && newPage <= totalPages) {
+      setCurrentPage(newPage);
     }
   };
-
-  useEffect(() => {
-    fetchData();
-  }, []);
 
   const handleSearch = useCallback((query) => {
     if (timeoutRef.current) {
@@ -111,7 +89,7 @@ const Listings = () => {
 
   return (
     <>
-      <Header username={username} />
+      <Header uname={username} />
       <div className="filter-container">
         <Search onSearch={handleSearch} />
         <label htmlFor="homeworld-filter">Homeworld:</label>
@@ -145,8 +123,10 @@ const Listings = () => {
         </select>
         <button className="reset-button" onClick={resetFilters}>Reset Filters</button>
       </div>
-      <Characters characters={filteredChars} species={data.species} homeWorlds={data.homeWorlds} />
+      <Characters characters={filteredChars} species={data?.species} homeWorlds={data?.homeWorlds} />
+      <Pagination currentPage={currentPage} totalPages={totalPages} onPageChange={handlePageChange} />
     </>
+
   );
 }
 

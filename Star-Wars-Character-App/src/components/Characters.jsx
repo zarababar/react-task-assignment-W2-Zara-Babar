@@ -10,6 +10,7 @@ const Characters = ({ characters, species, homeWorlds }) => {
     const [selectedCharacter, setSelectedCharacter] = useState(null);
     const [isModalOpen, setIsModalOpen] = useState(false);
 
+    const imagesUrl = import.meta.env.VITE_APP_RANDOM_IMAGES;
     const handleCharacterClick = (character) => {
         setSelectedCharacter(character);
         setIsModalOpen(true);
@@ -47,7 +48,7 @@ const Characters = ({ characters, species, homeWorlds }) => {
                         onClick={() => handleCharacterClick(character)}
                     >
                         <p>{character.name}</p>
-                        <img src={`https://picsum.photos/200/300?random=${randomNumberInRange(1, 59)}`} alt={character.name} />
+                        <img src={`${imagesUrl}${randomNumberInRange(1, 59)}`} alt={character.name} />
                     </div>
                 );
             })}
