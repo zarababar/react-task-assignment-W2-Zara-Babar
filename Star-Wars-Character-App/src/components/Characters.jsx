@@ -1,23 +1,25 @@
-import React, { useState, useMemo } from "react";
+import React, { useState, useMemo, useRef } from "react";
 import CharacterInformation from "./CharacterInformation";
+import { randomNumberInRange } from "../utils/utils";
 import { colorArray } from "../colors";
 
-const randomNumberInRange = (min, max) => {
-    return Math.floor(Math.random() * (max - min + 1)) + min;
-};
+const IMAGEURL = import.meta.env.VITE_APP_RANDOM_IMAGES;
 
 const Characters = ({ characters, species, homeWorlds }) => {
     const [selectedCharacter, setSelectedCharacter] = useState(null);
-    const [isModalOpen, setIsModalOpen] = useState(false);
+    const modalRef = useRef(null);
 
-    const imagesUrl = import.meta.env.VITE_APP_RANDOM_IMAGES;
     const handleCharacterClick = (character) => {
         setSelectedCharacter(character);
-        setIsModalOpen(true);
+        if (modalRef.current) {
+            modalRef.current.style.display = 'flex';
+        }
     };
 
     const closeModal = () => {
-        setIsModalOpen(false);
+        if (modalRef.current) {
+            modalRef.current.style.display = 'none';
+        }
         setSelectedCharacter(null);
     };
 
@@ -48,18 +50,16 @@ const Characters = ({ characters, species, homeWorlds }) => {
                         onClick={() => handleCharacterClick(character)}
                     >
                         <p>{character.name}</p>
-                        <img src={`${imagesUrl}${randomNumberInRange(1, 59)}`} alt={character.name} />
+                        <img src={`${IMAGEURL}${randomNumberInRange(1, 59)}`} alt={character.name} />
                     </div>
                 );
             })}
-            {isModalOpen && selectedCharacter && (
-                <div className="modal-overlay" onClick={closeModal}>
-                    <div className="modal-content" onClick={(e) => e.stopPropagation()}>
-                        <CharacterInformation character={selectedCharacter} homeWorlds={homeWorlds} />
-                        <button onClick={closeModal}>X</button>
-                    </div>
+            <div className="modal-overlay" ref={modalRef} style={{ display: 'none' }} onClick={closeModal}>
+                <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+                    {selectedCharacter && <CharacterInformation character={selectedCharacter} homeWorlds={homeWorlds} />}
+                    <button onClick={closeModal}>X</button>
                 </div>
-            )}
+            </div>
         </div>
     );
 };

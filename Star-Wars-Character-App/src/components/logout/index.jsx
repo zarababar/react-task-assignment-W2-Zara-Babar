@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { removeAuthItems } from '../../utils/authutils';
 import Loader from '../loader';
 import './Logout.css';
 
@@ -9,7 +10,7 @@ const Logout = () => {
 
   useEffect(() => {
     // Clear the authentication token
-    localStorage.removeItem("authToken");
+    removeAuthItems();
 
     // Simulate a delay to show the loader (e.g., 1 second)
     setTimeout(() => {
