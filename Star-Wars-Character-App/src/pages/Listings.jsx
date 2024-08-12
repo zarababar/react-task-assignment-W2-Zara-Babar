@@ -135,7 +135,7 @@ const Listings = () => {
         />
       </div>
       
-      {isLoading || isUpdating ? (
+      {isLoading ? (
         <Loader />
       ) : error ? (
         <p>Error fetching data</p>
